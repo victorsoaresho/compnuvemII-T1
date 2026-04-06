@@ -1,0 +1,73 @@
+Table customer {
+  id       int          [pk, increment, unique, note: 'ID do cliente']
+  name     varchar(150) [note: 'Nome completo do cliente']
+  email    varchar(150) [note: 'E-mail do cliente']
+  document varchar(20)  [unique, note: 'CPF/CNPJ do cliente']
+}
+
+Table seller {
+  id    int          [pk, note: 'ID do vendedor']
+  name  varchar(150) [note: 'Nome da loja/vendedor']
+  city  varchar(100) [note: 'Cidade do vendedor']
+  state char(2)      [note: 'UF do vendedor']
+}
+
+Table category {
+  id   varchar(20)  [pk, note: 'Código da categoria. ex: ELEC']
+  name varchar(100) [note: 'Nome da categoria']
+}
+
+Table sub_category {
+  id          varchar(20)  [pk, note: 'Código da subcategoria. ex: PHONE']
+  name        varchar(100) [note: 'Nome da subcategoria']
+  category_id varchar(20)  [ref: > category.id, note: 'FK para categoria pai']
+}
+
+Table product {
+  id              int           [pk, increment, note: 'ID interno do banco']
+  product_id      int           [unique, note: 'ID do produto no contexto do seller']
+  product_name    varchar(200)  [note: 'Nome do produto']
+  unit_price      decimal(12,2) [note: 'Preço unitário']
+  sub_category_id varchar(20)   [ref: > sub_category.id, note: 'FK para subcategoria']
+}
+
+Table orders {
+  uuid          varchar(50)   [pk, note: 'Identificador único do pedido. ex: ORD-2025-0001']
+  created_at    timestamp     [note: 'Data de criação do pedido']
+  indexed_at    timestamp     [note: 'Timestamp gerado automaticamente pelo Google Pub/Sub no momento da publicação da mensagem']
+  channel       varchar(50)   [note: 'Canal de origem do pedido. ex: mobile_app']
+  total         decimal(12,2) [note: 'Valor total do pedido — calculado dinamicamente']
+  status        varchar(20)   [note: 'Status do pedido: created, paid, shipped, delivered, canceled']
+  customer_id   int           [ref: > customer.id, note: 'FK para o cliente']
+  seller_id     int           [ref: > seller.id,   note: 'FK para o vendedor']
+  source        varchar(50)   [note: 'metadata — origem da requisição. ex: app']
+  user_agent    text          [note: 'metadata — user agent do client']
+  ip_address    varchar(45)   [note: 'metadata — IP de origem da requisição']
+}
+
+Table shipment {
+  id            int         [pk, increment]
+  order_uuid    varchar(50) [ref: - orders.uuid, note: 'FK para o pedido (1:1)']
+  carrier       varchar(100) [note: 'Transportadora. ex: Correios']
+  service       varchar(50)  [note: 'Serviço de entrega. ex: SEDEX']
+  status        varchar(50)  [note: 'Status do envio. ex: shipped']
+  tracking_code varchar(100) [note: 'Código de rastreio']
+}
+
+Table payment {
+  id             int          [pk, increment]
+  order_uuid     varchar(50)  [ref: - orders.uuid, note: 'FK para o pedido (1:1)']
+  method         varchar(50)  [note: 'Método de pagamento. ex: pix']
+  status         varchar(50)  [note: 'Status do pagamento. ex: approved']
+  transaction_id varchar(100) [note: 'ID da transação']
+}
+
+Table order_item {
+  id           int           [pk, increment,  note: 'ID do item dentro do pedido']
+  order_uuid   varchar(50)   [ref: > orders.uuid,  note: 'FK para o pedido']
+  product_id   int           [ref: > product.id,   note: 'FK para o produto (ID interno)']
+  product_name varchar(200)  [note: 'Nome do produto — denormalizado para preservar histórico']
+  unit_price   decimal(12,2) [note: 'Preço unitário no momento da compra — denormalizado']
+  quantity     int           [note: 'Quantidade do item']
+  total        decimal(12,2) [note: 'Valor total do item — calculado: unit_price * quantity']
+}
