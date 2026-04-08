@@ -1,11 +1,12 @@
 package br.com.fatec.messaging.repository;
 
+import br.com.fatec.messaging.model.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import br.com.fatec.messaging.model.Customer;
+import java.util.Optional;
 
 @Repository
-public interface CustomerRepository extends JpaRepository<Customer, Long> {
-
+public interface CustomerRepository extends JpaRepository<Customer, Integer> {
+    Optional<Customer> findByDocument(String document);
 }
