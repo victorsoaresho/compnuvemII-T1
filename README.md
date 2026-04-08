@@ -73,9 +73,9 @@ Você pode sobrescrever com variáveis de ambiente:
 | `DATABASE_URL` | JDBC URL completa |
 | `DB_USER` | usuário |
 | `DB_PASSWORD` | senha |
-| `JPA_DDL_AUTO` | modo Hibernate (padrão `update`) |
+| `JPA_DDL_AUTO` | modo Hibernate (padrão `none`) |
 
-Suba o Postgres (seção anterior) antes de rodar o consumer se for usar persistência JPA.
+Suba o Postgres (seção anterior) antes de rodar o consumer. O schema das tabelas e criado automaticamente pelo script `database/init/tables.sql` na primeira vez que o container sobe.
 
 ### Google Cloud Pub/Sub — como funciona
 
@@ -92,7 +92,7 @@ Suba o Postgres (seção anterior) antes de rodar o consumer se for usar persist
    - em caso de sucesso: chama **`ack()`** — a mensagem sai do backlog **dessa** subscription;
    - em caso de exceção (por exemplo payload vazio): **`nack()`** — a mensagem pode ser reentregue conforme política do Pub/Sub.
 
-4. **Processamento** — `PubSubMessageHandler` valida que o corpo não está vazio e registra em log metadados (subscription, topic, `messageId`, tamanho em bytes), **sem** logar o corpo bruto (evita vazar dados sensíveis). A lógica de negócio específica pode ser acrescentada nesse serviço.
+4. **Processamento** — `PubSubMessageHandler` valida que o corpo não esta vazio, registra metadados em log (subscription, topic, `messageId`, tamanho em bytes) **sem** logar o corpo bruto (evita vazar dados sensiveis), e em seguida deserializa o JSON para `OrderPayloadDto` e chama `OrderPersistenceService.persist()` para gravar no banco.
 
 5. **Ciclo de vida** — `PubSubSubscriberLifecycle` inicia o subscriber no `@PostConstruct` e encerra com timeout no `@PreDestroy`.
 
@@ -119,14 +119,73 @@ Defina `app.pubsub.enabled=false` (por exemplo em `application.properties` ou va
 
 ---
 
+## Como os dados sao inseridos no banco
+
+Cada mensagem recebida pelo Pub/Sub contem um JSON de pedido. O `PubSubMessageHandler` deserializa o payload para DTOs e delega ao `OrderPersistenceService`, que persiste os dados numa unica transacao (`@Transactional`), respeitando a ordem de dependencias de FK:
+
+```text
+GCP Pub/Sub (topic) → subscription → Subscriber (backend-v1)
+                                          |
+                              PubSubMessageHandler
+                                   |          |
+                            deserializa    ack/nack
+                            JSON → DTO
+                                   |
+                        OrderPersistenceService.persist()
+                                   |
+               +-------------------+-------------------+
+               |         |         |         |         |
+           Category  SubCategory Customer  Seller   Product
+               |         |         |         |         |
+               +---------+---------+---------+---------+
+                                   |
+                                Orders
+                                   |
+                    +--------------+--------------+
+                    |              |              |
+                Shipment       Payment      OrderItem
+```
+
+### Ordem de persistencia
+
+1. **Category** — upsert por ID (PK fornecida no payload)
+2. **SubCategory** — upsert por ID, referenciando a Category salva
+3. **Customer** — busca por `document` (CPF); se nao existe, cria novo (ID auto-gerado)
+4. **Seller** — upsert por ID (PK fornecida no payload)
+5. **Product** — busca por `productId` externo; se nao existe, cria novo (ID auto-gerado)
+6. **Orders** — cria com `uuid` do payload, recalcula `total` somando `unitPrice * quantity` de cada item, e mapeia status desconhecidos para `created`
+7. **Shipment** — cria vinculado ao pedido
+8. **Payment** — cria vinculado ao pedido
+9. **OrderItem** — cria vinculado ao pedido e produto; o campo `total` e calculado automaticamente pelo banco (`GENERATED ALWAYS AS`)
+
+### Tabelas do banco
+
+As tabelas sao criadas pelo script [`database/init/tables.sql`](database/init/tables.sql) na primeira inicializacao do container. O Hibernate roda com `ddl-auto=none`, ou seja, **nao altera o schema** — toda a estrutura e gerenciada pelo SQL de inicializacao.
+
+| Tabela | PK | Descricao |
+|--------|----|-----------|
+| `customer` | `id` (SERIAL) | Clientes, identificados por `document` (CPF) |
+| `seller` | `id` (INTEGER) | Vendedores |
+| `category` | `id` (VARCHAR) | Categorias de produto |
+| `sub_category` | `id` (VARCHAR) | Subcategorias, FK para `category` |
+| `product` | `id` (SERIAL) | Produtos, com `product_id` externo unico |
+| `orders` | `uuid` (VARCHAR) | Pedidos |
+| `shipment` | `id` (SERIAL) | Envio, 1:1 com `orders` |
+| `payment` | `id` (SERIAL) | Pagamento, 1:1 com `orders` |
+| `order_item` | `id` (SERIAL) | Itens do pedido, com `total` gerado pelo banco |
+
+---
+
 ## Resumo do fluxo
 
 ```text
 GCP Pub/Sub (topic) → subscription → Subscriber (backend-v1)
-                                          ↓
+                                          |
                               PubSubMessageHandler (ack/nack)
-                                          ↓
-                         PostgreSQL (via Spring Data JPA, quando usado)
+                                          |
+                        OrderPersistenceService (@Transactional)
+                                          |
+                                     PostgreSQL
 ```
 
-Para dúvidas sobre permissões no GCP, a service account usada no JSON precisa de permissão para consumir a subscription (por exemplo `roles/pubsub.subscriber` no tópico/projeto conforme a política da equipe).
+Para duvidas sobre permissoes no GCP, a service account usada no JSON precisa de permissao para consumir a subscription (por exemplo `roles/pubsub.subscriber` no topico/projeto conforme a politica da equipe).
