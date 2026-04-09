@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.TreeMap;
 
 @Service
 public class OrderPersistenceService {
@@ -45,27 +46,24 @@ public class OrderPersistenceService {
 
     @Transactional
     public void persist(OrderPayloadDto dto) {
-        // 1 & 2 — Category + SubCategory (per item)
+        // 1 — Category upsert: deduplicate + sort by ID for consistent lock order (prevents deadlocks)
+        TreeMap<String, String> uniqueCategories = new TreeMap<>();
+        TreeMap<String, String[]> uniqueSubCategories = new TreeMap<>();
         for (ItemDto item : dto.getItems()) {
-            Category category = new Category(item.getCategory().getId(), item.getCategory().getName());
-            categoryRepository.save(category);
-
-            SubCategory subCategory = new SubCategory(
+            uniqueCategories.put(item.getCategory().getId(), item.getCategory().getName());
+            uniqueSubCategories.put(
                     item.getCategory().getSubCategory().getId(),
-                    item.getCategory().getSubCategory().getName(),
-                    category);
-            subCategoryRepository.save(subCategory);
+                    new String[]{item.getCategory().getSubCategory().getName(), item.getCategory().getId()});
         }
+        uniqueCategories.forEach(categoryRepository::upsert);
+        uniqueSubCategories.forEach((id, data) -> subCategoryRepository.upsert(id, data[0], data[1]));
 
-        // 3 — Customer (upsert by document)
-        Customer customer = customerRepository.findByDocument(dto.getCustomer().getDocument())
-                .orElseGet(() -> {
-                    Customer c = new Customer();
-                    c.setName(dto.getCustomer().getName());
-                    c.setEmail(dto.getCustomer().getEmail());
-                    c.setDocument(dto.getCustomer().getDocument());
-                    return customerRepository.save(c);
-                });
+        // 3 — Customer (upsert by document — prevents duplicate key race condition)
+        customerRepository.upsertIfAbsent(
+                dto.getCustomer().getName(),
+                dto.getCustomer().getEmail(),
+                dto.getCustomer().getDocument());
+        Customer customer = customerRepository.findByDocument(dto.getCustomer().getDocument()).orElseThrow();
 
         // 4 — Seller (upsert by id)
         Seller seller = new Seller(
@@ -132,15 +130,13 @@ public class OrderPersistenceService {
             SubCategory subCat = subCategoryRepository.findById(item.getCategory().getSubCategory().getId())
                     .orElseThrow();
 
-            Product product = productRepository.findByProductId(item.getProductId())
-                    .orElseGet(() -> {
-                        Product p = new Product();
-                        p.setProductId(item.getProductId());
-                        p.setProductName(item.getProductName());
-                        p.setUnitPrice(item.getUnitPrice());
-                        p.setSubCategory(subCat);
-                        return productRepository.save(p);
-                    });
+            // upsert prevents duplicate key when two threads race on the same productId
+            productRepository.upsertIfAbsent(
+                    item.getProductId(),
+                    item.getProductName(),
+                    subCat.getId(),
+                    item.getUnitPrice());
+            Product product = productRepository.findByProductId(item.getProductId()).orElseThrow();
 
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
