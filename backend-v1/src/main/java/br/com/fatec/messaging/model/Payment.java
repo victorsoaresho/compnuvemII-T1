@@ -18,10 +18,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Payment {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @OneToOne
     @JoinColumn(name = "order_uuid", nullable = false, unique = true)
@@ -35,5 +34,4 @@ public class Payment {
 
     @Column(name = "transaction_id")
     private String transactionId;
-
 }

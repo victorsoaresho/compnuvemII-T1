@@ -1,8 +1,5 @@
 package br.com.fatec.messaging.model;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,21 +12,23 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+
 @Entity
 @Table(name = "orders")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Orders {
-
     @Id
     private String uuid;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMPTZ")
+    private OffsetDateTime createdAt;
 
-    @Column(name = "indexed_at", nullable = false)
-    private LocalDateTime indexedAt;
+    @Column(name = "indexed_at", nullable = false, columnDefinition = "TIMESTAMPTZ")
+    private OffsetDateTime indexedAt;
 
     @Column(name = "channel")
     private String channel;

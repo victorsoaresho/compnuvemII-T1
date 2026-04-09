@@ -10,7 +10,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./data:/var/lib/postgresql/data
       - ./init:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d compnuvem-t1"]
@@ -18,8 +18,3 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
- 
-volumes:
-  postgres_data:
-    driver: local
- 

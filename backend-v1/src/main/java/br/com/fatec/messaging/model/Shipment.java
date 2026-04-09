@@ -18,10 +18,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Shipment {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @OneToOne
     @JoinColumn(name = "order_uuid", nullable = false, unique = true)
@@ -38,5 +37,4 @@ public class Shipment {
 
     @Column(name = "tracking_code")
     private String trackingCode;
-
 }
