@@ -1,9 +1,14 @@
 import path from 'path';
 import dotenv from 'dotenv';
+import pg from 'pg';
+import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
 
 dotenv.config({ path: path.join(process.cwd(), '.env') });
 
-export const prisma = new PrismaClient({
-  accelerateUrl: process.env.DATABASE_URL,
-});
+const connectionString = `${process.env.DATABASE_URL}`;
+
+const pool = new pg.Pool({ connectionString });
+const adapter = new PrismaPg(pool);
+
+export const prisma = new PrismaClient({ adapter });
