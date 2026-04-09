@@ -5,5 +5,6 @@ const router = Router();
 const orderController = new OrderController();
 
 router.get('/', orderController.list);
+router.get('/:uuid', orderController.getByUuid);
 
 export default router;

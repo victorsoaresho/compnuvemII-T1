@@ -29,7 +29,9 @@ export class OrderService {
     if (productId) {
       where.items = {
         some: {
-          productId: productId
+          product: {
+            productId: productId
+          }
         }
       };
     }
