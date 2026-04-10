@@ -60,3 +60,19 @@ export const mapOrderToPayload = (order: any) => {
     }
   };
 };
+
+export const mapOrderListToPayload = (order: any) => {
+  return {
+    uuid: order.uuid,
+    created_at: order.createdAt,
+    channel: order.channel,
+    total: order.total ? parseFloat(order.total.toString()) : 0,
+    status: order.status,
+    customer: order.customer ? {
+      id: order.customer.id,
+      name: order.customer.name,
+      email: order.customer.email,
+      document: order.customer.document
+    } : null
+  };
+};

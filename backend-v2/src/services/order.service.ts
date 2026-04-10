@@ -44,23 +44,7 @@ export class OrderService {
         createdAt: 'desc'
       },
       include: {
-        customer: true,
-        seller: true,
-        shipment: true,
-        payment: true,
-        items: {
-          include: {
-            product: {
-              include: {
-                subCategory: {
-                  include: {
-                    category: true
-                  }
-                }
-              }
-            }
-          }
-        }
+        customer: true
       }
     });
 
