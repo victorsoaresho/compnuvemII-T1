@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://192.168.100.144:3000'; // Ajuste para seu IP se necessário
+const API_BASE_URL = 'http://192.168.100.144:3000'; 
 
 // Elementos
 const filterForm = document.getElementById('filterForm');
@@ -29,34 +29,55 @@ window.onclick = (e) => { if (e.target === modal) closeDetailsModal(); };
 async function fetchOrders() {
     showLoading(true);
     hideError();
+    
+    const uuidValue = document.getElementById('orderUuid').value.trim();
+    const clientValue = document.getElementById('clientId').value.trim();
+    const productValue = document.getElementById('productId').value.trim();
+    const statusValue = document.getElementById('status').value;
+
     try {
-        const params = new URLSearchParams();
-        
-        params.append('page', currentPage + 1);
-        params.append('limit', pageSize);
+        let response;
+        let data;
 
-        const clientId = document.getElementById('clientId').value;
-        const productId = document.getElementById('productId').value;
-        const status = document.getElementById('status').value;
+        if (uuidValue) {
+            response = await fetch(`${API_BASE_URL}/orders/${uuidValue}`);
+            
+            if (response.status === 404) {
+                data = [];
+            } else if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Erro ao buscar UUID');
+            } else {
+                const order = await response.json();
+                data = [order]; 
+            }
+        } else {
+            const params = new URLSearchParams();
+            params.append('page', currentPage + 1);
+            params.append('limit', pageSize);
 
-        if (clientId) params.append('custumerId', clientId); 
-        if (productId) params.append('productId', productId);
-        if (status) params.append('status', status);
+            if (clientValue)  params.append('custumerId', clientValue); 
+            if (productValue) params.append('productId', productValue);
+            if (statusValue)  params.append('status', statusValue);
 
-        const response = await fetch(`${API_BASE_URL}/orders?${params}`);
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Erro na requisição');
+            response = await fetch(`${API_BASE_URL}/orders?${params}`);
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Erro na filtragem');
+            }
+            data = await response.json();
         }
-        
-        allOrders = await response.json();
-        displayOrders(allOrders);
+
+        allOrders = data; 
+        displayOrders(allOrders); 
+
     } catch (err) {
         showError(err.message);
-        console.error("Erro detalhado:", err);
+        console.error("Erro na busca:", err);
+        if (ordersTable) ordersTable.classList.add('hidden');
     } finally {
-        showLoading(false);
+        showLoading(false); 
     }
 }
 
