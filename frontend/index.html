@@ -22,17 +22,14 @@
                     <label for="orderUuid">UUID do Pedido</label>
                     <input type="text" id="orderUuid" placeholder="Ex: ORD-2025-0001">
                 </div>
-
                 <div class="form-group">
                     <label for="clientId">ID do Cliente</label>
                     <input type="number" id="clientId" placeholder="Ex: 49494">
                 </div>
-
                 <div class="form-group">
                     <label for="productId">ID do Produto</label>
                     <input type="number" id="productId" placeholder="Ex: 9001">
                 </div>
-
                 <div class="form-group">
                     <label for="status">Status do Pedido</label>
                     <select id="status">
@@ -44,7 +41,6 @@
                         <option value="canceled">Cancelado</option>
                     </select>
                 </div>
-
                 <div class="form-group button-group">
                     <button type="submit" class="btn btn-primary">🔍 Buscar</button>
                     <button type="reset" class="btn btn-secondary">🔄 Limpar</button>
@@ -55,13 +51,11 @@
         <section class="results-section">
             <div id="loading" class="loading hidden">
                 <div class="spinner"></div>
-                <p>Carregando pedidos...</p>
+                <p>Carregando...</p>
             </div>
-
             <div id="noResults" class="no-results hidden">
-                <p>Nenhum pedido encontrado. Tente ajustar seus filtros.</p>
+                <p>Nenhum pedido encontrado.</p>
             </div>
-
             <div id="error" class="error-message hidden"></div>
 
             <table id="ordersTable" class="orders-table hidden">
@@ -76,8 +70,7 @@
                         <th>Ações</th>
                     </tr>
                 </thead>
-                <tbody id="tableBody">
-                </tbody>
+                <tbody id="tableBody"></tbody>
             </table>
         </section>
 
@@ -96,7 +89,6 @@
             </div>
         </div>
     </div>
-
     <script src="app.js"></script>
 </body>
 </html>
