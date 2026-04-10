@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Consulta de Pedidos - Mensageria</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <h1> Sistema de Consulta de Pedidos</h1>
+                <p>Consultoria em Nuvem 2 - FATEC</p>
+            </div>
+        </header>
+
+        <section class="filters-section">
+            <h2>Filtros de Busca</h2>
+            <form id="filterForm" class="filters-grid">
+                <div class="form-group">
+                    <label for="orderUuid">UUID do Pedido</label>
+                    <input type="text" id="orderUuid" placeholder="Ex: ORD-2025-0001">
+                </div>
+                <div class="form-group">
+                    <label for="clientId">ID do Cliente</label>
+                    <input type="number" id="clientId" placeholder="Ex: 49494">
+                </div>
+                <div class="form-group">
+                    <label for="productId">ID do Produto</label>
+                    <input type="number" id="productId" placeholder="Ex: 9001">
+                </div>
+                <div class="form-group">
+                    <label for="status">Status do Pedido</label>
+                    <select id="status">
+                        <option value="">Todos</option>
+                        <option value="created">Criado</option>
+                        <option value="paid">Pago</option>
+                        <option value="shipped">Enviado</option>
+                        <option value="delivered">Entregue</option>
+                        <option value="canceled">Cancelado</option>
+                    </select>
+                </div>
+                <div class="form-group button-group">
+                    <button type="submit" class="btn btn-primary">🔍 Buscar</button>
+                    <button type="reset" class="btn btn-secondary">🔄 Limpar</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="results-section">
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>Carregando...</p>
+            </div>
+            <div id="noResults" class="no-results hidden">
+                <p>Nenhum pedido encontrado.</p>
+            </div>
+            <div id="error" class="error-message hidden"></div>
+
+            <table id="ordersTable" class="orders-table hidden">
+                <thead>
+                    <tr>
+                        <th>UUID</th>
+                        <th>Data</th>
+                        <th>Cliente</th>
+                        <th>Produtos</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </section>
+
+        <section class="pagination-section hidden" id="pagination">
+            <div class="pagination">
+                <button id="prevBtn" class="btn btn-pagination">← Anterior</button>
+                <span id="pageInfo" class="page-info">Página <span id="currentPage">1</span> de <span id="totalPages">1</span></span>
+                <button id="nextBtn" class="btn btn-pagination">Próxima →</button>
+            </div>
+        </section>
+
+        <div id="detailsModal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close close-btn">&times;</span>
+                <div id="modalDetails"></div>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
