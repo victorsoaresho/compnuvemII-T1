@@ -8,7 +8,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <header class="header">
             <div class="header-content">
                 <h1> Sistema de Consulta de Pedidos</h1>
@@ -16,7 +15,6 @@
             </div>
         </header>
 
-        <!-- Filtros -->
         <section class="filters-section">
             <h2>Filtros de Busca</h2>
             <form id="filterForm" class="filters-grid">
@@ -54,7 +52,6 @@
             </form>
         </section>
 
-        <!-- Resultados -->
         <section class="results-section">
             <div id="loading" class="loading hidden">
                 <div class="spinner"></div>
@@ -65,7 +62,7 @@
                 <p>Nenhum pedido encontrado. Tente ajustar seus filtros.</p>
             </div>
 
-            <div id="errorMessage" class="error-message hidden"></div>
+            <div id="error" class="error-message hidden"></div>
 
             <table id="ordersTable" class="orders-table hidden">
                 <thead>
@@ -84,8 +81,7 @@
             </table>
         </section>
 
-        <!-- Paginação -->
-        <section class="pagination-section hidden" id="paginationSection">
+        <section class="pagination-section hidden" id="pagination">
             <div class="pagination">
                 <button id="prevBtn" class="btn btn-pagination">← Anterior</button>
                 <span id="pageInfo" class="page-info">Página <span id="currentPage">1</span> de <span id="totalPages">1</span></span>
@@ -93,10 +89,9 @@
             </div>
         </section>
 
-        <!-- Modal de Detalhes -->
         <div id="detailsModal" class="modal hidden">
             <div class="modal-content">
-                <span class="close">&times;</span>
+                <span class="close close-btn">&times;</span>
                 <div id="modalDetails"></div>
             </div>
         </div>
