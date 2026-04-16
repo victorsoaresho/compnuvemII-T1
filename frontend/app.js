@@ -23,6 +23,21 @@ filterForm.addEventListener('submit', (e) => {
     fetchOrders();
 });
 
+document.getElementById('prevBtn').addEventListener('click', () => {
+    if (currentPage > 0) {
+        currentPage--;
+        fetchOrders();
+    }
+});
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+    // Só avança se a página atual retornou a quantidade máxima de itens (pageSize)
+    if (allOrders.length === pageSize) {
+        currentPage++;
+        fetchOrders();
+    }
+});
+
 closeBtn.addEventListener('click', closeDetailsModal);
 window.onclick = (e) => { if (e.target === modal) closeDetailsModal(); };
 
@@ -83,13 +98,17 @@ async function fetchOrders() {
 
 function displayOrders(orders) {
     tableBody.innerHTML = '';
+    
     if (!orders.length) {
         ordersTable.classList.add('hidden');
         noResultsDiv.classList.remove('hidden');
+        paginationSection.classList.add('hidden');
         return;
     }
+
     noResultsDiv.classList.add('hidden');
     ordersTable.classList.remove('hidden');
+    paginationSection.classList.remove('hidden');
 
     orders.forEach(order => {
         const row = document.createElement('tr');
@@ -104,6 +123,23 @@ function displayOrders(orders) {
         `;
         tableBody.appendChild(row);
     });
+
+    updatePaginationControls(orders.length);
+}
+
+function updatePaginationControls(countOnPage) {
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const currentPageSpan = document.getElementById('currentPage');
+    const totalPagesSpan = document.getElementById('totalPages');
+
+    currentPageSpan.textContent = currentPage + 1;
+
+    prevBtn.disabled = (currentPage === 0);
+
+    nextBtn.disabled = (countOnPage < pageSize);
+
+    totalPagesSpan.textContent = (countOnPage < pageSize) ? (currentPage + 1) : '?';
 }
 
 async function showOrderDetails(uuid) {
