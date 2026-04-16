@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://192.168.100.144:3000'; 
+const API_BASE_URL = 'http://localhost:3000'; 
 
 // Elementos
 const filterForm = document.getElementById('filterForm');
@@ -56,7 +56,7 @@ async function fetchOrders() {
             params.append('page', currentPage + 1);
             params.append('limit', pageSize);
 
-            if (clientValue)  params.append('custumerId', clientValue); 
+            if (clientValue)  params.append('customerId', clientValue); 
             if (productValue) params.append('productId', productValue);
             if (statusValue)  params.append('status', statusValue);
 

@@ -3,92 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Consulta de Pedidos - Mensageria</title>
+    <title>Consulta de Pedidos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <header class="header">
-            <div class="header-content">
-                <h1> Sistema de Consulta de Pedidos</h1>
-                <p>Consultoria em Nuvem 2 - FATEC</p>
+    <div class="macos-bg"></div>
+    <div class="app-container">
+        
+        <header class="mac-header">
+            <div class="mac-header-content">
+                <h1>Pedidos</h1>
+                <span class="subtitle">Consultoria em Nuvem 2 - FATEC</span>
             </div>
         </header>
 
-        <section class="filters-section">
-            <h2>Filtros de Busca</h2>
-            <form id="filterForm" class="filters-grid">
-                <div class="form-group">
-                    <label for="orderUuid">UUID do Pedido</label>
-                    <input type="text" id="orderUuid" placeholder="Ex: ORD-2025-0001">
-                </div>
-                <div class="form-group">
-                    <label for="clientId">ID do Cliente</label>
-                    <input type="number" id="clientId" placeholder="Ex: 49494">
-                </div>
-                <div class="form-group">
-                    <label for="productId">ID do Produto</label>
-                    <input type="number" id="productId" placeholder="Ex: 9001">
-                </div>
-                <div class="form-group">
-                    <label for="status">Status do Pedido</label>
-                    <select id="status">
-                        <option value="">Todos</option>
-                        <option value="created">Criado</option>
-                        <option value="paid">Pago</option>
-                        <option value="shipped">Enviado</option>
-                        <option value="delivered">Entregue</option>
-                        <option value="canceled">Cancelado</option>
-                    </select>
-                </div>
-                <div class="form-group button-group">
-                    <button type="submit" class="btn btn-primary">🔍 Buscar</button>
-                    <button type="reset" class="btn btn-secondary">🔄 Limpar</button>
-                </div>
-            </form>
-        </section>
+        <main class="main-content">
+            <section class="mac-panel filters-panel">
+                <form id="filterForm" class="mac-form">
+                    <div class="form-row">
+                        <div class="mac-input-group">
+                            <label for="orderUuid">UUID do Pedido</label>
+                            <input type="text" id="orderUuid" class="mac-input" placeholder="Ex: ORD-2025-0001">
+                        </div>
+                        <div class="mac-input-group">
+                            <label for="clientId">ID Cliente</label>
+                            <input type="number" id="clientId" class="mac-input" placeholder="Ex: 49494">
+                        </div>
+                        <div class="mac-input-group">
+                            <label for="productId">ID Produto</label>
+                            <input type="number" id="productId" class="mac-input" placeholder="Ex: 9001">
+                        </div>
+                        <div class="mac-input-group">
+                            <label for="status">Status</label>
+                            <div class="mac-select-wrapper">
+                                <select id="status" class="mac-select">
+                                    <option value="">Todos</option>
+                                    <option value="created">Criado</option>
+                                    <option value="paid">Pago</option>
+                                    <option value="shipped">Enviado</option>
+                                    <option value="delivered">Entregue</option>
+                                    <option value="canceled">Cancelado</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="reset" class="mac-btn secondary">Limpar</button>
+                        <button type="submit" class="mac-btn primary">Buscar</button>
+                    </div>
+                </form>
+            </section>
 
-        <section class="results-section">
-            <div id="loading" class="loading hidden">
-                <div class="spinner"></div>
-                <p>Carregando...</p>
-            </div>
-            <div id="noResults" class="no-results hidden">
-                <p>Nenhum pedido encontrado.</p>
-            </div>
-            <div id="error" class="error-message hidden"></div>
+            <section class="mac-panel results-panel">
+                <div id="loading" class="mac-state hidden">
+                    <div class="mac-spinner"></div>
+                    <p>Buscando...</p>
+                </div>
 
-            <table id="ordersTable" class="orders-table hidden">
-                <thead>
-                    <tr>
-                        <th>UUID</th>
-                        <th>Data</th>
-                        <th>Cliente</th>
-                        <th>Produtos</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
-        </section>
+                <div id="noResults" class="mac-state hidden">
+                    <div class="icon-empty">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </div>
+                    <h3>Nenhum pedido</h3>
+                    <p>Os filtros atuais não retornaram resultados.</p>
+                </div>
 
-        <section class="pagination-section hidden" id="pagination">
-            <div class="pagination">
-                <button id="prevBtn" class="btn btn-pagination">← Anterior</button>
-                <span id="pageInfo" class="page-info">Página <span id="currentPage">1</span> de <span id="totalPages">1</span></span>
-                <button id="nextBtn" class="btn btn-pagination">Próxima →</button>
-            </div>
-        </section>
+                <div id="error" class="mac-error hidden"></div>
 
-        <div id="detailsModal" class="modal hidden">
-            <div class="modal-content">
-                <span class="close close-btn">&times;</span>
-                <div id="modalDetails"></div>
+                <div class="table-wrapper">
+                    <table id="ordersTable" class="mac-table hidden">
+                        <thead>
+                            <tr>
+                                <th>UUID</th>
+                                <th>Data</th>
+                                <th>Cliente</th>
+                                <th>Produtos</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+
+                <div id="pagination" class="mac-pagination hidden">
+                    <button id="prevBtn" class="mac-btn secondary btn-sm" disabled>Anterior</button>
+                    <span id="pageInfo" class="page-info">Página <span id="currentPage">1</span> de <span id="totalPages">1</span></span>
+                    <button id="nextBtn" class="mac-btn secondary btn-sm" disabled>Próxima</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal modificado para estilo macOS Window -->
+    <div id="detailsModal" class="mac-modal-overlay hidden">
+        <div class="mac-modal">
+            <div class="mac-modal-header">
+                <div class="traffic-lights">
+                    <div class="close-btn mac-close"></div>
+                    <div class="mac-min"></div>
+                    <div class="mac-max"></div>
+                </div>
             </div>
+            <div id="modalDetails" class="mac-modal-body"></div>
         </div>
     </div>
+    
     <script src="app.js"></script>
 </body>
 </html>
