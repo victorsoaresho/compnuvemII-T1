@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Pedidos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="macos-bg"></div>
+    <div class="app-container">
+        
+        <header class="mac-header">
+            <div class="mac-header-content">
+                <h1>Pedidos</h1>
+                <span class="subtitle">Consultoria em Nuvem 2 - FATEC</span>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <section class="mac-panel filters-panel">
+                <form id="filterForm" class="mac-form">
+                    <div class="form-row">
+                        <div class="mac-input-group">
+                            <label for="orderUuid">UUID do Pedido</label>
+                            <input type="text" id="orderUuid" class="mac-input" placeholder="Ex: ORD-2025-0001">
+                        </div>
+                        <div class="mac-input-group">
+                            <label for="clientId">ID Cliente</label>
+                            <input type="number" id="clientId" class="mac-input" placeholder="Ex: 49494">
+                        </div>
+                        <div class="mac-input-group">
+                            <label for="productId">ID Produto</label>
+                            <input type="number" id="productId" class="mac-input" placeholder="Ex: 9001">
+                        </div>
+                        <div class="mac-input-group">
+                            <label for="status">Status</label>
+                            <div class="mac-select-wrapper">
+                                <select id="status" class="mac-select">
+                                    <option value="">Todos</option>
+                                    <option value="created">Criado</option>
+                                    <option value="paid">Pago</option>
+                                    <option value="shipped">Enviado</option>
+                                    <option value="delivered">Entregue</option>
+                                    <option value="canceled">Cancelado</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="reset" class="mac-btn secondary">Limpar</button>
+                        <button type="submit" class="mac-btn primary">Buscar</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="mac-panel results-panel">
+                <div id="loading" class="mac-state hidden">
+                    <div class="mac-spinner"></div>
+                    <p>Buscando...</p>
+                </div>
+
+                <div id="noResults" class="mac-state hidden">
+                    <div class="icon-empty">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </div>
+                    <h3>Nenhum pedido</h3>
+                    <p>Os filtros atuais não retornaram resultados.</p>
+                </div>
+
+                <div id="error" class="mac-error hidden"></div>
+
+                <div class="table-wrapper">
+                    <table id="ordersTable" class="mac-table hidden">
+                        <thead>
+                            <tr>
+                                <th>UUID</th>
+                                <th>Data</th>
+                                <th>Cliente</th>
+                                <th>Produtos</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+
+                <div id="pagination" class="mac-pagination hidden">
+                    <button id="prevBtn" class="mac-btn secondary btn-sm" disabled>Anterior</button>
+                    <span id="pageInfo" class="page-info">Página <span id="currentPage">1</span> de <span id="totalPages">1</span></span>
+                    <button id="nextBtn" class="mac-btn secondary btn-sm" disabled>Próxima</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal modificado para estilo macOS Window -->
+    <div id="detailsModal" class="mac-modal-overlay hidden">
+        <div class="mac-modal">
+            <div class="mac-modal-header">
+                <div class="traffic-lights">
+                    <div class="close-btn mac-close"></div>
+                    <div class="mac-min"></div>
+                    <div class="mac-max"></div>
+                </div>
+            </div>
+            <div id="modalDetails" class="mac-modal-body"></div>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>

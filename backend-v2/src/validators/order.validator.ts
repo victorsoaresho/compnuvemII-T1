@@ -8,7 +8,7 @@ export interface ValidationResult<T> {
 
 export class OrderValidator {
   static validateListQuery(query: any): ValidationResult<ListOrdersQueryDto> {
-    const allowedQueries = ['page', 'limit', 'custumerId', 'productId', 'status'];
+    const allowedQueries = ['page', 'limit', 'customerId', 'productId', 'status'];
     const invalidParams = Object.keys(query).filter(key => !allowedQueries.includes(key));
 
     if (invalidParams.length > 0) {
@@ -21,11 +21,11 @@ export class OrderValidator {
       };
     }
 
-    const { page, limit, custumerId, productId, status } = query;
+    const { page, limit, customerId, productId, status } = query;
 
     const parsedPage = page ? Number(page) : 1;
     const parsedLimit = limit ? Number(limit) : 10;
-    const parsedCustomerId = custumerId ? Number(custumerId) : undefined;
+    const parsedCustomerId = customerId ? Number(customerId) : undefined;
     const parsedProductId = productId ? Number(productId) : undefined;
 
     if (page && (!Number.isInteger(parsedPage) || parsedPage <= 0)) {
@@ -34,8 +34,8 @@ export class OrderValidator {
     if (limit && (!Number.isInteger(parsedLimit) || parsedLimit <= 0)) {
       return { isValid: false, error: "O parâmetro 'limit' deve ser um número inteiro positivo." };
     }
-    if (custumerId && (!Number.isInteger(parsedCustomerId) || parsedCustomerId! <= 0)) {
-      return { isValid: false, error: "O parâmetro 'custumerId' deve ser um número inteiro positivo." };
+    if (customerId && (!Number.isInteger(parsedCustomerId) || parsedCustomerId! <= 0)) {
+      return { isValid: false, error: "O parâmetro 'customerId' deve ser um número inteiro positivo." };
     }
     if (productId && (!Number.isInteger(parsedProductId) || parsedProductId! <= 0)) {
       return { isValid: false, error: "O parâmetro 'productId' deve ser um número inteiro positivo." };
